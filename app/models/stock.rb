@@ -12,16 +12,19 @@ class Stock < ActiveRecord::Base
     return nil unless looked_up_stock.name
     
     new_stock = new(ticker: looked_up_stock.symbol, name: looked_up_stock.name)
-    new_stock.last_price = new_stock.price
+    new_stock.last_price = new_stock.open
     new_stock
   end
   
-  def price
-    closing_price = StockQuote::Stock.quote(ticker).close
-    return "#{closing_price} (Closing)" if closing_price
-    
+  def open
     opening_price = StockQuote::Stock.quote(ticker).open
-    return "#{opening_price} (Opening)" if opening_price
+    return "#{opening_price} " if opening_price
     'Unavailable'
+  end
+  
+  def close
+    previous_close = StockQuote::Stock.quote(ticker).previous_close
+    return "#{previous_close}" if previous_close
+    "Unavailable"
   end
 end
